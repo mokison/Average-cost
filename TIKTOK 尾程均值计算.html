@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIKTOK尾程计算器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/v4-shims.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#FF4B4B',
+                        accent: '#FFC107',
+                        dark: '#1A1A1A',
+                        light: '#F8F9FA'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .gradient-bg {
+                background: linear-gradient(135deg, #165DFF 0%, #0A2463 100%);
+            }
+            .card-shadow {
+                box-shadow: 0 10px 25px rgba(22, 93, 255, 0.15);
+            }
+            .input-focus {
+                transition: all 0.3s ease;
+            }
+            .input-focus:focus {
+                border-color: #165DFF;
+                box-shadow: 0 0 0 3px rgba(22, 93, 255, 0.2);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-light to-gray-100 min-h-screen font-inter">
+    <!-- 导航栏 -->
+    <nav class="gradient-bg text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fa fa-calculator text-2xl mr-3"></i>
+                    <span class="text-xl font-bold">TIKTOK尾程计算器</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- 预留导航项 -->
+                    <button class="nav-item px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10 transition-colors duration-200">
+                        <i class="fa fa-home mr-1"></i>首页
+                    </button>
+                    <button class="nav-item px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10 transition-colors duration-200">
+                        <i class="fa fa-history mr-1"></i>历史
+                    </button>
+                    <button class="nav-item px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10 transition-colors duration-200">
+                        <i class="fa fa-cog mr-1"></i>设置
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 计算器卡片 -->
+        <div class="bg-white rounded-2xl card-shadow p-8 mb-8 transform transition-all duration-300 hover:scale-[1.01]">
+            <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-6 text-center">
+                <i class="fa fa-bar-chart text-primary mr-2"></i>
+                平均值计算
+            </h2>
+            
+            <!-- 输入区域 -->
+            <div class="mb-8">
+                <label for="numbersInput" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fa fa-pencil text-primary mr-1"></i>
+                    输入数值（用逗号或空格分隔）
+                </label>
+                <textarea 
+                    id="numbersInput" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg input-focus resize-none h-32"
+                    placeholder="例如：1, 2, 3, -4, 5 或 1 2 3 -4 5"></textarea>
+                <p class="text-xs text-gray-500 mt-1">
+                    <i class="fa fa-info-circle text-accent mr-1"></i>
+                    支持正数、负数输入，结果将自动转换为正数
+                </p>
+            </div>
+            
+            <!-- 按钮区域 -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                <button id="calculateBtn" class="bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                    <i class="fa fa-calculator mr-2"></i>
+                    计算平均值
+                </button>
+                <button id="clearBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-8 rounded-lg transition-all duration-300">
+                    <i class="fa fa-trash mr-2"></i>
+                    清空输入
+                </button>
+            </div>
+            
+            <!-- 结果区域 -->
+            <div id="resultArea" class="hidden">
+                <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fa fa-check-circle text-green-500 mr-2"></i>
+                        计算结果
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <p class="text-sm text-gray-600 mb-1">原始平均值</p>
+                            <p id="rawAverage" class="text-2xl font-bold text-primary"></p>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <p class="text-sm text-gray-600 mb-1">正数结果</p>
+                            <p id="positiveAverage" class="text-2xl font-bold text-secondary"></p>
+                        </div>
+                    </div>
+                    <div class="mt-4 bg-blue-50 rounded-lg p-4 border border-blue-200">
+                        <p class="text-sm text-blue-700 flex items-center">
+                            <i class="fa fa-info-circle mr-2"></i>
+                            <span id="calculationInfo"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 预留内容区域 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- 预留卡片1 -->
+            <div class="bg-white rounded-xl card-shadow p-6 transform transition-all duration-300 hover:scale-[1.02]">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fa fa-line-chart text-primary text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">数据分析</h3>
+                    <p class="text-gray-600 text-sm">预留数据分析功能区域</p>
+                </div>
+            </div>
+            
+            <!-- 预留卡片2 -->
+            <div class="bg-white rounded-xl card-shadow p-6 transform transition-all duration-300 hover:scale-[1.02]">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fa fa-table text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">数据报表</h3>
+                    <p class="text-gray-600 text-sm">预留数据报表功能区域</p>
+                </div>
+            </div>
+            
+            <!-- 预留卡片3 -->
+            <div class="bg-white rounded-xl card-shadow p-6 transform transition-all duration-300 hover:scale-[1.02]">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fa fa-cloud-upload text-purple-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">数据导入</h3>
+                    <p class="text-gray-600 text-sm">预留数据导入功能区域</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <i class="fa fa-calculator mr-2"></i>
+                        TIKTOK尾程计算器
+                    </h3>
+                    <p class="text-gray-400 text-sm">
+                        专业的TikTok数据计算工具，帮助您快速分析和处理数据
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">功能导航</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors duration-200">计算器</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors duration-200">数据分析</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors duration-200">数据报表</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">联系我们</h3>
+                    <div class="space-y-2 text-gray-400">
+                        <p><i class="fa fa-envelope mr-2"></i>mokison1211@gmail.com</p>
+                        <p><i class="fa fa-phone mr-2"></i>+86 18638536758</p>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400 text-sm">
+                <p>&copy; 2025 TIKTOK尾程计算器. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 等待DOM加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            const numbersInput = document.getElementById('numbersInput');
+            const calculateBtn = document.getElementById('calculateBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const resultArea = document.getElementById('resultArea');
+            const rawAverage = document.getElementById('rawAverage');
+            const positiveAverage = document.getElementById('positiveAverage');
+            const calculationInfo = document.getElementById('calculationInfo');
+
+            // 计算按钮点击事件
+            calculateBtn.addEventListener('click', function() {
+                const input = numbersInput.value.trim();
+                if (!input) {
+                    alert('请输入数值！');
+                    numbersInput.focus();
+                    return;
+                }
+
+                // 解析输入的数值
+                const numbers = parseInput(input);
+                if (numbers.length === 0) {
+                    alert('请输入有效的数值！');
+                    numbersInput.focus();
+                    return;
+                }
+
+                // 计算平均值
+                const average = calculateAverage(numbers);
+                const positiveResult = Math.abs(average);
+
+                // 显示结果
+                rawAverage.textContent = average.toFixed(6);
+                positiveAverage.textContent = positiveResult.toFixed(6);
+                
+                // 显示计算信息
+                let infoText = `共计算了 ${numbers.length} 个数值`;
+                if (average < 0) {
+                    infoText += `，原始结果为负数（${average.toFixed(6)}），已自动转换为正数`;
+                } else {
+                    infoText += `，结果为正数`;
+                }
+                calculationInfo.textContent = infoText;
+
+                // 显示结果区域并添加动画
+                resultArea.classList.remove('hidden');
+                resultArea.classList.add('animate-fade-in');
+                
+                // 滚动到结果区域
+                resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+
+            // 清空按钮点击事件
+            clearBtn.addEventListener('click', function() {
+                numbersInput.value = '';
+                resultArea.classList.add('hidden');
+                numbersInput.focus();
+            });
+
+            // 解析输入的数值
+            function parseInput(input) {
+                // 用逗号或空格分割
+                const parts = input.split(/[,\s]+/);
+                const numbers = [];
+                
+                for (const part of parts) {
+                    if (part.trim()) {
+                        const num = parseFloat(part.trim());
+                        if (!isNaN(num)) {
+                            numbers.push(num);
+                        }
+                    }
+                }
+                
+                return numbers;
+            }
+
+            // 计算平均值
+            function calculateAverage(numbers) {
+                if (numbers.length === 0) return 0;
+                const sum = numbers.reduce((acc, curr) => acc + curr, 0);
+                return sum / numbers.length;
+            }
+
+            // 添加动画效果
+            document.head.insertAdjacentHTML('beforeend', `
+                <style>
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(20px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                    .animate-fade-in {
+                        animation: fadeIn 0.5s ease-out forwards;
+                    }
+                </style>
+            `);
+
+            // 为导航项添加点击效果
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    navItems.forEach(i => i.classList.remove('bg-white/20'));
+                    this.classList.add('bg-white/20');
+                });
+            });
+
+            // 初始化
+            numbersInput.focus();
+        });
+    </script>
+</body>
+</html>
